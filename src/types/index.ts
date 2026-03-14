@@ -12,6 +12,7 @@ export interface Task {
   completed: boolean;
   completedPomodoros: number;
   estimatedPomodoros: number; // 0 = no estimate
+  tags: string[];
   createdAt: number;
   completedAt: number | null;
 }

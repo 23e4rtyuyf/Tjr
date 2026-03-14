@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, type FormEvent } from 'react';
+import { useState, useEffect, useRef, type FormEvent, type KeyboardEvent } from 'react';
 import type { Priority, Task } from '../../types';
 import { PRIORITY_LABELS } from '../../utils/constants';
 
@@ -7,6 +7,7 @@ interface TaskFormData {
   notes: string;
   priority: Priority;
   estimatedPomodoros: number;
+  tags: string[];
 }
 
 interface TaskFormProps {
@@ -15,13 +16,16 @@ interface TaskFormProps {
   initial?: Partial<Task>;
   autoFocus?: boolean;
   inputRef?: React.RefObject<HTMLInputElement | null>;
+  suggestedTags?: string[];
 }
 
-export function TaskForm({ onSubmit, onCancel, initial, autoFocus, inputRef }: TaskFormProps) {
+export function TaskForm({ onSubmit, onCancel, initial, autoFocus, inputRef, suggestedTags = [] }: TaskFormProps) {
   const [title, setTitle] = useState(initial?.title ?? '');
   const [notes, setNotes] = useState(initial?.notes ?? '');
   const [priority, setPriority] = useState<Priority>(initial?.priority ?? 'none');
   const [estimatedPomodoros, setEstimatedPomodoros] = useState(initial?.estimatedPomodoros ?? 0);
+  const [tags, setTags] = useState<string[]>(initial?.tags ?? []);
+  const [tagInput, setTagInput] = useState('');
   const [expanded, setExpanded] = useState(!!initial?.notes);
   const internalRef = useRef<HTMLInputElement>(null);
   const ref = (inputRef as React.RefObject<HTMLInputElement>) ?? internalRef;
@@ -30,16 +34,43 @@ export function TaskForm({ onSubmit, onCancel, initial, autoFocus, inputRef }: T
     if (autoFocus) ref.current?.focus();
   }, [autoFocus, ref]);
 
+  const addTag = (raw: string) => {
+    const tag = raw.trim().toLowerCase();
+    if (tag && !tags.includes(tag)) {
+      setTags(prev => [...prev, tag]);
+    }
+    setTagInput('');
+  };
+
+  const removeTag = (tag: string) => setTags(prev => prev.filter(t => t !== tag));
+
+  const handleTagKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      addTag(tagInput);
+    } else if (e.key === 'Backspace' && tagInput === '' && tags.length > 0) {
+      removeTag(tags[tags.length - 1]);
+    }
+  };
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
-    onSubmit({ title: title.trim(), notes, priority, estimatedPomodoros });
+    // Commit any in-progress tag input
+    const finalTags = tagInput.trim()
+      ? [...new Set([...tags, tagInput.trim().toLowerCase()])]
+      : tags;
+    onSubmit({ title: title.trim(), notes, priority, estimatedPomodoros, tags: finalTags });
     setTitle('');
     setNotes('');
     setPriority('none');
     setEstimatedPomodoros(0);
+    setTags([]);
+    setTagInput('');
     setExpanded(false);
   };
+
+  const unusedSuggestions = suggestedTags.filter(t => !tags.includes(t));
 
   const priorityOptions: Priority[] = ['none', 'low', 'medium', 'high'];
   const priorityColors: Record<Priority, string> = {
@@ -57,7 +88,7 @@ export function TaskForm({ onSubmit, onCancel, initial, autoFocus, inputRef }: T
           type="text"
           value={title}
           onChange={e => setTitle(e.target.value)}
-          placeholder="Add a task…"
+          placeholder="Add a task..."
           className="flex-1 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm"
           onKeyDown={e => {
             if (e.key === 'Escape') onCancel?.();
@@ -137,15 +168,58 @@ export function TaskForm({ onSubmit, onCancel, initial, autoFocus, inputRef }: T
           onClick={() => setExpanded(v => !v)}
           className="ml-auto text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
         >
-          {expanded ? '− notes' : '+ notes'}
+          {expanded ? '- notes' : '+ notes'}
         </button>
+      </div>
+
+      {/* Tag input */}
+      <div className="space-y-1.5">
+        <div className="flex flex-wrap items-center gap-1 min-h-[28px] px-2 py-1 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 focus-within:ring-2 focus-within:ring-red-400">
+          {tags.map(tag => (
+            <span
+              key={tag}
+              className="inline-flex items-center gap-1 text-xs bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 px-1.5 py-0.5 rounded"
+            >
+              {tag}
+              <button
+                type="button"
+                onClick={() => removeTag(tag)}
+                className="text-blue-500 hover:text-blue-700 dark:hover:text-blue-200 leading-none"
+              >
+                ×
+              </button>
+            </span>
+          ))}
+          <input
+            type="text"
+            value={tagInput}
+            onChange={e => setTagInput(e.target.value)}
+            onKeyDown={handleTagKeyDown}
+            placeholder={tags.length === 0 ? 'Add tags...' : ''}
+            className="flex-1 min-w-[80px] text-xs bg-transparent text-gray-700 dark:text-gray-300 placeholder-gray-400 focus:outline-none"
+          />
+        </div>
+        {unusedSuggestions.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {unusedSuggestions.map(tag => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => addTag(tag)}
+                className="text-xs px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors"
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {expanded && (
         <textarea
           value={notes}
           onChange={e => setNotes(e.target.value)}
-          placeholder="Optional notes…"
+          placeholder="Optional notes..."
           rows={2}
           className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm resize-none"
         />

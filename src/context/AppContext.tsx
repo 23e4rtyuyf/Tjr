@@ -38,12 +38,15 @@ function loadState(): AppState {
     saved.timer.status = 'idle';
     // Backfill sessionHistory for older persisted state
     if (!saved.sessionHistory) saved.sessionHistory = [];
-    // Backfill estimatedPomodoros for older persisted tasks
-    saved.tasks = saved.tasks.map(t =>
-      'estimatedPomodoros' in (t as unknown as Record<string, unknown>)
-        ? t
-        : { ...t, estimatedPomodoros: 0 }
-    );
+    // Backfill missing fields for older persisted tasks
+    saved.tasks = saved.tasks.map(t => {
+      const raw = t as unknown as Record<string, unknown>;
+      return {
+        ...t,
+        ...('estimatedPomodoros' in raw ? {} : { estimatedPomodoros: 0 }),
+        ...('tags' in raw ? {} : { tags: [] }),
+      };
+    });
     return saved;
   } catch {
     return buildInitialState();

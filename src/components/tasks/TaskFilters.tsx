@@ -1,6 +1,46 @@
 export type FilterMode = 'all' | 'active' | 'completed';
 export type SortMode = 'none' | 'priority' | 'pomodoros';
 
+export function TagFilterBar({
+  allTags,
+  activeTags,
+  onToggle,
+}: {
+  allTags: string[];
+  activeTags: string[];
+  onToggle: (tag: string) => void;
+}) {
+  if (allTags.length === 0) return null;
+  return (
+    <div className="flex flex-wrap gap-1">
+      {allTags.map(tag => {
+        const active = activeTags.includes(tag);
+        return (
+          <button
+            key={tag}
+            onClick={() => onToggle(tag)}
+            className={`text-xs px-2 py-0.5 rounded-full border transition-colors ${
+              active
+                ? 'bg-blue-500 border-blue-500 text-white'
+                : 'border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-300'
+            }`}
+          >
+            {tag}
+          </button>
+        );
+      })}
+      {activeTags.length > 0 && (
+        <button
+          onClick={() => activeTags.forEach(t => onToggle(t))}
+          className="text-xs px-2 py-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+        >
+          Clear
+        </button>
+      )}
+    </div>
+  );
+}
+
 export function TaskFilters({
   filter,
   onChange,

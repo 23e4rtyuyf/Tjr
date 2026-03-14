@@ -11,7 +11,7 @@ const priorityColors: Record<Priority, string> = {
   high: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
 };
 
-export function TaskItem({ task }: { task: Task }) {
+export function TaskItem({ task, allTags }: { task: Task; allTags: string[] }) {
   const { state, dispatch } = useAppContext();
   const [editing, setEditing] = useState(false);
   const isActive = state.timer.activeTaskId === task.id;
@@ -27,6 +27,7 @@ export function TaskItem({ task }: { task: Task }) {
           }}
           onCancel={() => setEditing(false)}
           autoFocus
+          suggestedTags={allTags.filter(t => !task.tags.includes(t))}
         />
       </div>
     );
@@ -75,6 +76,14 @@ export function TaskItem({ task }: { task: Task }) {
               {PRIORITY_LABELS[task.priority]}
             </span>
           )}
+          {task.tags.map(tag => (
+            <span
+              key={tag}
+              className="text-xs px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300"
+            >
+              {tag}
+            </span>
+          ))}
           {(task.completedPomodoros > 0 || task.estimatedPomodoros > 0) && (
             <PomodoroProgress
               completed={task.completedPomodoros}
