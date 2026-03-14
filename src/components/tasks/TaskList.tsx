@@ -3,7 +3,7 @@ import { useAppContext } from '../../context/AppContext';
 import { TaskForm } from './TaskForm';
 import { TaskItem } from './TaskItem';
 import { TaskFilters, TagFilterBar, type FilterMode, type SortMode } from './TaskFilters';
-import type { Priority } from '../../types';
+import type { Priority, Recurrence } from '../../types';
 
 const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2, none: 3 };
 
@@ -45,8 +45,11 @@ export function TaskList({ newTaskInputRef }: TaskListProps) {
       return 0;
     });
 
-  const handleAdd = (data: { title: string; notes: string; priority: Priority; estimatedPomodoros: number; tags: string[] }) => {
-    dispatch({ type: 'ADD_TASK', payload: { ...data, completed: false } });
+  const handleAdd = (data: { title: string; notes: string; priority: Priority; estimatedPomodoros: number; tags: string[]; recurrence: Recurrence }) => {
+    dispatch({
+      type: 'ADD_TASK',
+      payload: { ...data, completed: false, nextResetAt: null, skipNextReset: false, resetCount: 0 },
+    });
   };
 
   return (

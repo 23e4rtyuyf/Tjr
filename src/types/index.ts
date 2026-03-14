@@ -4,6 +4,8 @@ export type TimerPhase = 'work' | 'shortBreak' | 'longBreak';
 
 export type TimerStatus = 'idle' | 'running' | 'paused';
 
+export type Recurrence = 'none' | 'daily' | 'weekly';
+
 export interface Task {
   id: string;
   title: string;
@@ -15,6 +17,10 @@ export interface Task {
   tags: string[];
   createdAt: number;
   completedAt: number | null;
+  recurrence: Recurrence;
+  nextResetAt: number | null;   // ms timestamp when the task will auto-reset
+  skipNextReset: boolean;       // if true, skip one cycle instead of resetting
+  resetCount: number;           // cumulative auto-reset count
 }
 
 export interface TimerSettings {
@@ -72,4 +78,6 @@ export type AppAction =
   | { type: 'TIMER_PHASE_COMPLETE' }
   | { type: 'UPDATE_SETTINGS'; payload: Partial<TimerSettings> }
   | { type: 'CLEAR_ALL' }
-  | { type: 'CLEAR_HISTORY' };
+  | { type: 'CLEAR_HISTORY' }
+  | { type: 'CHECK_RECURRING_RESETS' }
+  | { type: 'SKIP_NEXT_RESET'; payload: { id: string } };

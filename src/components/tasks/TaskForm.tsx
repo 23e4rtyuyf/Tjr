@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, type FormEvent, type KeyboardEvent } from 'react';
-import type { Priority, Task } from '../../types';
+import type { Priority, Recurrence, Task } from '../../types';
 import { PRIORITY_LABELS } from '../../utils/constants';
 
 interface TaskFormData {
@@ -8,6 +8,7 @@ interface TaskFormData {
   priority: Priority;
   estimatedPomodoros: number;
   tags: string[];
+  recurrence: Recurrence;
 }
 
 interface TaskFormProps {
@@ -27,6 +28,7 @@ export function TaskForm({ onSubmit, onCancel, initial, autoFocus, inputRef, sug
   const [tags, setTags] = useState<string[]>(initial?.tags ?? []);
   const [tagInput, setTagInput] = useState('');
   const [expanded, setExpanded] = useState(!!initial?.notes);
+  const [recurrence, setRecurrence] = useState<Recurrence>(initial?.recurrence ?? 'none');
   const internalRef = useRef<HTMLInputElement>(null);
   const ref = (inputRef as React.RefObject<HTMLInputElement>) ?? internalRef;
 
@@ -60,7 +62,7 @@ export function TaskForm({ onSubmit, onCancel, initial, autoFocus, inputRef, sug
     const finalTags = tagInput.trim()
       ? [...new Set([...tags, tagInput.trim().toLowerCase()])]
       : tags;
-    onSubmit({ title: title.trim(), notes, priority, estimatedPomodoros, tags: finalTags });
+    onSubmit({ title: title.trim(), notes, priority, estimatedPomodoros, tags: finalTags, recurrence });
     setTitle('');
     setNotes('');
     setPriority('none');
@@ -68,6 +70,7 @@ export function TaskForm({ onSubmit, onCancel, initial, autoFocus, inputRef, sug
     setTags([]);
     setTagInput('');
     setExpanded(false);
+    setRecurrence('none');
   };
 
   const unusedSuggestions = suggestedTags.filter(t => !tags.includes(t));
@@ -216,6 +219,29 @@ export function TaskForm({ onSubmit, onCancel, initial, autoFocus, inputRef, sug
             ))}
           </div>
         )}
+      </div>
+
+      {/* Recurrence selector */}
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-gray-500 dark:text-gray-400">Repeats:</span>
+        <div className="flex gap-1">
+          {(['none', 'daily', 'weekly'] as Recurrence[]).map(r => (
+            <button
+              key={r}
+              type="button"
+              onClick={() => setRecurrence(r)}
+              className={`text-xs px-2 py-0.5 rounded-full border-2 transition-colors ${
+                r === 'none'
+                  ? 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                  : r === 'daily'
+                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+                  : 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300'
+              } ${recurrence === r ? 'border-current' : 'border-transparent'}`}
+            >
+              {r === 'none' ? 'None' : r === 'daily' ? 'Daily' : 'Weekly'}
+            </button>
+          ))}
+        </div>
       </div>
 
       {expanded && (

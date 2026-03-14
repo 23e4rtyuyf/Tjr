@@ -1,7 +1,7 @@
 import { createContext, useContext, useReducer, useEffect, type ReactNode } from 'react';
 import type { AppState, AppAction, Task, SessionRecord } from '../types';
 import { DEFAULT_SETTINGS, STORAGE_KEY } from '../utils/constants';
-import { todayKey } from '../utils/dateHelpers';
+import { todayKey, calcNextResetAt } from '../utils/dateHelpers';
 
 function buildInitialState(): AppState {
   const today = todayKey();
@@ -45,6 +45,10 @@ function loadState(): AppState {
         ...t,
         ...('estimatedPomodoros' in raw ? {} : { estimatedPomodoros: 0 }),
         ...('tags' in raw ? {} : { tags: [] }),
+        ...('recurrence' in raw ? {} : { recurrence: 'none' }),
+        ...('nextResetAt' in raw ? {} : { nextResetAt: null }),
+        ...('skipNextReset' in raw ? {} : { skipNextReset: false }),
+        ...('resetCount' in raw ? {} : { resetCount: 0 }),
       };
     });
     return saved;
@@ -92,11 +96,23 @@ function reducer(state: AppState, action: AppAction): AppState {
       const statsAdjust = nowCompleted ? 1 : -1;
       return {
         ...state,
-        tasks: state.tasks.map(t =>
-          t.id === action.payload.id
-            ? { ...t, completed: nowCompleted, completedAt: nowCompleted ? Date.now() : null }
-            : t
-        ),
+        tasks: state.tasks.map(t => {
+          if (t.id !== action.payload.id) return t;
+          if (nowCompleted && t.recurrence !== 'none') {
+            return {
+              ...t,
+              completed: true,
+              completedAt: Date.now(),
+              nextResetAt: calcNextResetAt(t.recurrence),
+            };
+          }
+          return {
+            ...t,
+            completed: nowCompleted,
+            completedAt: nowCompleted ? Date.now() : null,
+            nextResetAt: null,
+          };
+        }),
         dailyStats: {
           ...state.dailyStats,
           tasksCompleted: Math.max(0, state.dailyStats.tasksCompleted + statsAdjust),
@@ -225,6 +241,37 @@ function reducer(state: AppState, action: AppAction): AppState {
 
     case 'CLEAR_HISTORY': {
       return { ...state, sessionHistory: [] };
+    }
+
+    case 'CHECK_RECURRING_RESETS': {
+      const now = Date.now();
+      const tasks = state.tasks.map(t => {
+        if (!t.completed || !t.nextResetAt || now < t.nextResetAt) return t;
+        if (t.skipNextReset) {
+          return {
+            ...t,
+            skipNextReset: false,
+            nextResetAt: calcNextResetAt(t.recurrence as 'daily' | 'weekly'),
+          };
+        }
+        return {
+          ...t,
+          completed: false,
+          completedAt: null,
+          nextResetAt: null,
+          resetCount: t.resetCount + 1,
+        };
+      });
+      return { ...state, tasks };
+    }
+
+    case 'SKIP_NEXT_RESET': {
+      return {
+        ...state,
+        tasks: state.tasks.map(t =>
+          t.id === action.payload.id ? { ...t, skipNextReset: !t.skipNextReset } : t
+        ),
+      };
     }
 
     default:

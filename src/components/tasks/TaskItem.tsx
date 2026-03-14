@@ -84,6 +84,29 @@ export function TaskItem({ task, allTags }: { task: Task; allTags: string[] }) {
               {tag}
             </span>
           ))}
+          {task.recurrence !== 'none' && (
+            <span className="text-xs px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+              {task.recurrence === 'daily' ? 'Daily' : 'Weekly'}
+            </span>
+          )}
+          {task.resetCount > 0 && (
+            <span className="text-xs text-gray-400 dark:text-gray-500">
+              Reset {task.resetCount}×
+            </span>
+          )}
+          {task.completed && task.recurrence !== 'none' && (
+            <button
+              onClick={() => dispatch({ type: 'SKIP_NEXT_RESET', payload: { id: task.id } })}
+              className={`text-xs px-1.5 py-0.5 rounded transition-colors opacity-0 group-hover:opacity-100 ${
+                task.skipNextReset
+                  ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
+                  : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400 hover:bg-amber-100 hover:text-amber-700 dark:hover:bg-amber-900/40 dark:hover:text-amber-300'
+              }`}
+              title={task.skipNextReset ? 'Cancel skip' : 'Skip next reset'}
+            >
+              {task.skipNextReset ? 'Skipping' : 'Skip next'}
+            </button>
+          )}
           {(task.completedPomodoros > 0 || task.estimatedPomodoros > 0) && (
             <PomodoroProgress
               completed={task.completedPomodoros}

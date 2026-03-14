@@ -11,6 +11,7 @@ import { TimerSettings } from './components/timer/TimerSettings';
 import { TaskList } from './components/tasks/TaskList';
 import { useTimer } from './hooks/useTimer';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { useRecurringResets } from './hooks/useRecurringResets';
 
 function AppContent() {
   const [showShortcuts, setShowShortcuts] = useState(false);
@@ -19,6 +20,7 @@ function AppContent() {
   const newTaskInputRef = useRef<HTMLInputElement>(null);
 
   useTimer();
+  useRecurringResets();
   useKeyboardShortcuts({
     onToggleShortcuts: () => setShowShortcuts(v => !v),
     onNewTask: () => newTaskInputRef.current?.focus(),
