@@ -1,5 +1,5 @@
 import { createContext, useContext, useReducer, useEffect, type ReactNode } from 'react';
-import type { AppState, AppAction, Task } from '../types';
+import type { AppState, AppAction, Task, SessionRecord } from '../types';
 import { DEFAULT_SETTINGS, STORAGE_KEY } from '../utils/constants';
 import { todayKey } from '../utils/dateHelpers';
 
@@ -20,6 +20,7 @@ function buildInitialState(): AppState {
       totalFocusSeconds: 0,
       tasksCompleted: 0,
     },
+    sessionHistory: [],
   };
 }
 
@@ -35,6 +36,8 @@ function loadState(): AppState {
     }
     // Always reset timer to idle on reload
     saved.timer.status = 'idle';
+    // Backfill sessionHistory for older persisted state
+    if (!saved.sessionHistory) saved.sessionHistory = [];
     return saved;
   } catch {
     return buildInitialState();
@@ -156,10 +159,29 @@ function reducer(state: AppState, action: AppAction): AppState {
           ? 'running'
           : 'idle';
 
+      // Record completed work session in history
+      const now = Date.now();
+      const sessionHistory = wasWork
+        ? [
+            ...state.sessionHistory,
+            {
+              id: crypto.randomUUID(),
+              taskId: state.timer.activeTaskId,
+              taskTitle:
+                state.tasks.find(t => t.id === state.timer.activeTaskId)?.title ?? null,
+              date: todayKey(),
+              startedAt: now - state.settings.workDuration * 1000,
+              completedAt: now,
+              durationSeconds: state.settings.workDuration,
+            } satisfies SessionRecord,
+          ]
+        : state.sessionHistory;
+
       return {
         ...state,
         tasks,
         dailyStats,
+        sessionHistory,
         timer: {
           ...state.timer,
           phase: nextPhase,
@@ -190,6 +212,10 @@ function reducer(state: AppState, action: AppAction): AppState {
 
     case 'CLEAR_ALL': {
       return buildInitialState();
+    }
+
+    case 'CLEAR_HISTORY': {
+      return { ...state, sessionHistory: [] };
     }
 
     default:

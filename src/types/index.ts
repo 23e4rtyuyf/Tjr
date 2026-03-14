@@ -38,11 +38,22 @@ export interface DailyStats {
   tasksCompleted: number;
 }
 
+export interface SessionRecord {
+  id: string;
+  taskId: string | null;
+  taskTitle: string | null; // snapshot — preserved even if task is later deleted
+  date: string;             // 'YYYY-MM-DD'
+  startedAt: number;        // ms timestamp
+  completedAt: number;      // ms timestamp
+  durationSeconds: number;
+}
+
 export interface AppState {
   tasks: Task[];
   timer: TimerState;
   settings: TimerSettings;
   dailyStats: DailyStats;
+  sessionHistory: SessionRecord[];
 }
 
 export type AppAction =
@@ -58,4 +69,5 @@ export type AppAction =
   | { type: 'TIMER_SKIP_PHASE' }
   | { type: 'TIMER_PHASE_COMPLETE' }
   | { type: 'UPDATE_SETTINGS'; payload: Partial<TimerSettings> }
-  | { type: 'CLEAR_ALL' };
+  | { type: 'CLEAR_ALL' }
+  | { type: 'CLEAR_HISTORY' };

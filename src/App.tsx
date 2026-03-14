@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { AppProvider } from './context/AppContext';
 import { Header } from './components/layout/Header';
 import { ShortcutsModal } from './components/layout/ShortcutsModal';
+import { HistoryPanel } from './components/stats/HistoryPanel';
 import { TimerDisplay } from './components/timer/TimerDisplay';
 import { TimerControls } from './components/timer/TimerControls';
 import { ActiveTaskBadge } from './components/timer/ActiveTaskBadge';
@@ -12,6 +13,7 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 
 function AppContent() {
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const newTaskInputRef = useRef<HTMLInputElement>(null);
 
   useTimer();
@@ -22,7 +24,10 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
-      <Header onToggleShortcuts={() => setShowShortcuts(v => !v)} />
+      <Header
+        onToggleShortcuts={() => setShowShortcuts(v => !v)}
+        onToggleHistory={() => setShowHistory(v => !v)}
+      />
 
       <main className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Timer panel */}
@@ -45,6 +50,7 @@ function AppContent() {
       </main>
 
       {showShortcuts && <ShortcutsModal onClose={() => setShowShortcuts(false)} />}
+      {showHistory && <HistoryPanel onClose={() => setShowHistory(false)} />}
     </div>
   );
 }
