@@ -3,6 +3,7 @@ import { AppProvider } from './context/AppContext';
 import { Header } from './components/layout/Header';
 import { ShortcutsModal } from './components/layout/ShortcutsModal';
 import { HistoryPanel } from './components/stats/HistoryPanel';
+import { WeeklyStats } from './components/stats/WeeklyStats';
 import { TimerDisplay } from './components/timer/TimerDisplay';
 import { TimerControls } from './components/timer/TimerControls';
 import { ActiveTaskBadge } from './components/timer/ActiveTaskBadge';
@@ -14,6 +15,7 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 function AppContent() {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showWeeklyStats, setShowWeeklyStats] = useState(false);
   const newTaskInputRef = useRef<HTMLInputElement>(null);
 
   useTimer();
@@ -27,6 +29,7 @@ function AppContent() {
       <Header
         onToggleShortcuts={() => setShowShortcuts(v => !v)}
         onToggleHistory={() => setShowHistory(v => !v)}
+        onToggleWeeklyStats={() => setShowWeeklyStats(v => !v)}
       />
 
       <main className="flex-1 flex flex-col md:flex-row overflow-hidden">
@@ -51,6 +54,7 @@ function AppContent() {
 
       {showShortcuts && <ShortcutsModal onClose={() => setShowShortcuts(false)} />}
       {showHistory && <HistoryPanel onClose={() => setShowHistory(false)} />}
+      {showWeeklyStats && <WeeklyStats onClose={() => setShowWeeklyStats(false)} />}
     </div>
   );
 }

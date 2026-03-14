@@ -27,11 +27,13 @@ export function TimerControls() {
 
       <button
         onClick={handleToggle}
-        className="px-8 py-3 rounded-xl font-semibold text-white transition-all active:scale-95 shadow-md"
-        style={{
-          backgroundColor:
-            timer.phase === 'work' ? '#ef4444' : timer.phase === 'shortBreak' ? '#22c55e' : '#3b82f6',
-        }}
+        className={`px-8 py-3 rounded-xl font-semibold text-white transition-all active:scale-95 shadow-sm ${
+          timer.phase === 'work'
+            ? 'bg-red-500 hover:bg-red-600'
+            : timer.phase === 'shortBreak'
+            ? 'bg-green-500 hover:bg-green-600'
+            : 'bg-blue-500 hover:bg-blue-600'
+        }`}
         title="Start / Pause (Space)"
       >
         {timer.status === 'running' ? 'Pause' : 'Start'}

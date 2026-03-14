@@ -31,7 +31,7 @@ export function TimerDisplay() {
     <div className="flex flex-col items-center gap-4">
       <div className="relative w-56 h-56">
         <svg className="w-full h-full -rotate-90" viewBox="0 0 200 200">
-          <circle cx="100" cy="100" r={RADIUS} fill="none" stroke="#e5e7eb" strokeWidth="8" />
+          <circle cx="100" cy="100" r={RADIUS} fill="none" stroke="currentColor" strokeWidth="8" className="text-gray-200 dark:text-gray-700" />
           <circle
             cx="100"
             cy="100"

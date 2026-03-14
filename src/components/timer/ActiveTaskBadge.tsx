@@ -22,10 +22,12 @@ export function ActiveTaskBadge() {
       </span>
       <button
         onClick={() => dispatch({ type: 'SET_ACTIVE_TASK', payload: { id: null } })}
-        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 ml-1 flex-shrink-0"
+        className="p-0.5 rounded text-gray-400 hover:text-gray-600 hover:bg-gray-200 dark:hover:text-gray-300 dark:hover:bg-gray-600 ml-1 flex-shrink-0 transition-colors"
         title="Unlink task"
       >
-        ×
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
       </button>
     </div>
   );

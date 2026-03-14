@@ -184,9 +184,12 @@ export function TaskForm({ onSubmit, onCancel, initial, autoFocus, inputRef, sug
               <button
                 type="button"
                 onClick={() => removeTag(tag)}
-                className="text-blue-500 hover:text-blue-700 dark:hover:text-blue-200 leading-none"
+                className="text-blue-400 hover:text-blue-700 dark:hover:text-blue-200 leading-none"
+                aria-label={`Remove tag ${tag}`}
               >
-                ×
+                <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </span>
           ))}
