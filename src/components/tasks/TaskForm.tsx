@@ -2,8 +2,15 @@ import { useState, useEffect, useRef, type FormEvent } from 'react';
 import type { Priority, Task } from '../../types';
 import { PRIORITY_LABELS } from '../../utils/constants';
 
+interface TaskFormData {
+  title: string;
+  notes: string;
+  priority: Priority;
+  estimatedPomodoros: number;
+}
+
 interface TaskFormProps {
-  onSubmit: (data: { title: string; notes: string; priority: Priority }) => void;
+  onSubmit: (data: TaskFormData) => void;
   onCancel?: () => void;
   initial?: Partial<Task>;
   autoFocus?: boolean;
@@ -14,6 +21,7 @@ export function TaskForm({ onSubmit, onCancel, initial, autoFocus, inputRef }: T
   const [title, setTitle] = useState(initial?.title ?? '');
   const [notes, setNotes] = useState(initial?.notes ?? '');
   const [priority, setPriority] = useState<Priority>(initial?.priority ?? 'none');
+  const [estimatedPomodoros, setEstimatedPomodoros] = useState(initial?.estimatedPomodoros ?? 0);
   const [expanded, setExpanded] = useState(!!initial?.notes);
   const internalRef = useRef<HTMLInputElement>(null);
   const ref = (inputRef as React.RefObject<HTMLInputElement>) ?? internalRef;
@@ -25,10 +33,11 @@ export function TaskForm({ onSubmit, onCancel, initial, autoFocus, inputRef }: T
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
-    onSubmit({ title: title.trim(), notes, priority });
+    onSubmit({ title: title.trim(), notes, priority, estimatedPomodoros });
     setTitle('');
     setNotes('');
     setPriority('none');
+    setEstimatedPomodoros(0);
     setExpanded(false);
   };
 
@@ -72,7 +81,8 @@ export function TaskForm({ onSubmit, onCancel, initial, autoFocus, inputRef }: T
         )}
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
+        {/* Priority buttons */}
         <div className="flex gap-1">
           {priorityOptions.map(p => (
             <button
@@ -87,6 +97,41 @@ export function TaskForm({ onSubmit, onCancel, initial, autoFocus, inputRef }: T
             </button>
           ))}
         </div>
+
+        {/* Estimate stepper */}
+        <div className="flex items-center gap-1 ml-1">
+          {estimatedPomodoros === 0 ? (
+            <button
+              type="button"
+              onClick={() => setEstimatedPomodoros(1)}
+              className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              title="Set session estimate"
+            >
+              + estimate
+            </button>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => setEstimatedPomodoros(v => Math.max(0, v - 1))}
+                className="w-5 h-5 flex items-center justify-center rounded text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600 text-xs"
+              >
+                −
+              </button>
+              <span className="text-xs text-gray-700 dark:text-gray-300 w-16 text-center">
+                {estimatedPomodoros} session{estimatedPomodoros !== 1 ? 's' : ''}
+              </span>
+              <button
+                type="button"
+                onClick={() => setEstimatedPomodoros(v => v + 1)}
+                className="w-5 h-5 flex items-center justify-center rounded text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600 text-xs"
+              >
+                +
+              </button>
+            </>
+          )}
+        </div>
+
         <button
           type="button"
           onClick={() => setExpanded(v => !v)}

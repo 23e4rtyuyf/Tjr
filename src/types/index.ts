@@ -11,6 +11,7 @@ export interface Task {
   priority: Priority;
   completed: boolean;
   completedPomodoros: number;
+  estimatedPomodoros: number; // 0 = no estimate
   createdAt: number;
   completedAt: number | null;
 }

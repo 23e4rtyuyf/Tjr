@@ -21,7 +21,7 @@ export function TaskFilters({
   const sortOptions: { key: SortMode; label: string }[] = [
     { key: 'none', label: 'Order' },
     { key: 'priority', label: 'Priority' },
-    { key: 'pomodoros', label: '🍅' },
+    { key: 'pomodoros', label: 'Sessions' },
   ];
 
   return (

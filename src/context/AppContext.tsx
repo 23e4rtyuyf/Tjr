@@ -38,6 +38,12 @@ function loadState(): AppState {
     saved.timer.status = 'idle';
     // Backfill sessionHistory for older persisted state
     if (!saved.sessionHistory) saved.sessionHistory = [];
+    // Backfill estimatedPomodoros for older persisted tasks
+    saved.tasks = saved.tasks.map(t =>
+      'estimatedPomodoros' in (t as unknown as Record<string, unknown>)
+        ? t
+        : { ...t, estimatedPomodoros: 0 }
+    );
     return saved;
   } catch {
     return buildInitialState();

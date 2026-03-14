@@ -16,7 +16,7 @@ export function ActiveTaskBadge() {
 
   return (
     <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-lg px-3 py-2 max-w-xs">
-      <span className="text-red-500 text-sm">🍅</span>
+      <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
       <span className="text-sm text-gray-700 dark:text-gray-200 truncate flex-1">
         {activeTask.title}
       </span>

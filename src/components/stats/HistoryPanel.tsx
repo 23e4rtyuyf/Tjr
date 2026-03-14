@@ -71,7 +71,7 @@ export function HistoryPanel({ onClose }: { onClose: () => void }) {
             <p className="text-sm text-gray-400 dark:text-gray-500 text-center pt-12">
               No sessions recorded yet.
               <br />
-              Complete a pomodoro to start tracking.
+              Complete a focus session to start tracking.
             </p>
           ) : (
             groups.map(group => {
@@ -94,7 +94,7 @@ export function HistoryPanel({ onClose }: { onClose: () => void }) {
                         key={r.id}
                         className="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-700/50"
                       >
-                        <span className="text-base">🍅</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm text-gray-800 dark:text-gray-100 truncate">
                             {r.taskTitle ?? <span className="text-gray-400 italic">No task</span>}

@@ -29,7 +29,7 @@ export function TaskList({ newTaskInputRef }: TaskListProps) {
       return 0;
     });
 
-  const handleAdd = (data: { title: string; notes: string; priority: Priority }) => {
+  const handleAdd = (data: { title: string; notes: string; priority: Priority; estimatedPomodoros: number }) => {
     dispatch({ type: 'ADD_TASK', payload: { ...data, completed: false } });
   };
 

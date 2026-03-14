@@ -54,7 +54,7 @@ export function TimerSettings() {
             label="Long break after"
             value={settings.longBreakInterval}
             onChange={v => updateInt('longBreakInterval', v)}
-            unit="🍅"
+            unit="sessions"
           />
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -118,7 +118,7 @@ function Row({
         >
           +
         </button>
-        <span className="ml-1 text-gray-500 w-8">{unit}</span>
+        <span className="ml-1 text-gray-500 min-w-8">{unit}</span>
       </div>
     </div>
   );

@@ -75,10 +75,11 @@ export function TaskItem({ task }: { task: Task }) {
               {PRIORITY_LABELS[task.priority]}
             </span>
           )}
-          {task.completedPomodoros > 0 && (
-            <span className="text-xs text-gray-400 dark:text-gray-500">
-              🍅 {task.completedPomodoros}
-            </span>
+          {(task.completedPomodoros > 0 || task.estimatedPomodoros > 0) && (
+            <PomodoroProgress
+              completed={task.completedPomodoros}
+              estimated={task.estimatedPomodoros}
+            />
           )}
         </div>
       </div>
@@ -99,7 +100,10 @@ export function TaskItem({ task }: { task: Task }) {
           }`}
           title={isActive ? 'Unlink from timer' : 'Link to timer'}
         >
-          🍅
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+          </svg>
         </button>
         <button
           onClick={() => setEditing(true)}
@@ -125,6 +129,39 @@ export function TaskItem({ task }: { task: Task }) {
               d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
           </svg>
         </button>
+      </div>
+    </div>
+  );
+}
+
+function PomodoroProgress({
+  completed,
+  estimated,
+}: {
+  completed: number;
+  estimated: number;
+}) {
+  if (estimated === 0) {
+    return (
+      <span className="text-xs text-gray-400 dark:text-gray-500">
+        {completed} session{completed !== 1 ? 's' : ''}
+      </span>
+    );
+  }
+
+  const overrun = completed > estimated;
+  const pct = Math.min(100, Math.round((completed / estimated) * 100));
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className={`text-xs ${overrun ? 'text-red-500' : 'text-gray-400 dark:text-gray-500'}`}>
+        {completed} / {estimated} sessions
+      </span>
+      <div className="w-16 h-1.5 rounded-full bg-gray-200 dark:bg-gray-600 overflow-hidden">
+        <div
+          className={`h-full rounded-full transition-all ${overrun ? 'bg-red-500' : 'bg-red-400'}`}
+          style={{ width: `${pct}%` }}
+        />
       </div>
     </div>
   );
