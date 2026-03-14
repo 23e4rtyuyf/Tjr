@@ -112,7 +112,11 @@ export function TaskItem({ task }: { task: Task }) {
           </svg>
         </button>
         <button
-          onClick={() => dispatch({ type: 'DELETE_TASK', payload: { id: task.id } })}
+          onClick={() => {
+            if (confirm(`Delete "${task.title}"?`)) {
+              dispatch({ type: 'DELETE_TASK', payload: { id: task.id } });
+            }
+          }}
           className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
           title="Delete task"
         >
